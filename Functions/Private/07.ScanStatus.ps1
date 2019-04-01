@@ -13,12 +13,18 @@ function Check-ScanStatus {
         return "Compliant"
     }
     else {
-        $ErrorMessage = ($Content -match 'Scan failed with error' | Select-Object -last 1).split('[').split(']')[2]
-        $ErrorCode = $ErrorMessage.split('=')[1].split('.')[0].trim()
-        $ErrorDescription = ($Configuration.ErroCodes | where-object {$_.code -eq $ErrorCode}).Description | Select-Object -first 1
-        $ErrorMessage = $ErrorMessage + " - " + $ErrorDescription
-        if (-not $Silent) { Write-Host "$(get-date -Format s) | [WARNING] $ErrorMessage" -ForegroundColor Yellow }
-        return "NotCompliant"
+        $ErrorMessage = $Content -match 'Scan failed with error' | Select-Object -last 1
+        if ($ErrorMessage) {
+            $ErrorMessage = $ErrorMessage.split('[').split(']')[2]
+            $ErrorCode = $ErrorMessage.split('=')[1].split('.')[0].trim()
+            $ErrorDescription = ($Configuration.ErroCodes | where-object {$_.code -eq $ErrorCode}).Description | Select-Object -first 1
+            $ErrorMessage = $ErrorMessage + " - " + $ErrorDescription
+            if (-not $Silent) { Write-Host "$(get-date -Format s) | [WARNING] $ErrorMessage" -ForegroundColor Yellow }
+            return "NotCompliant"
+        }
+        else {
+            return "Compliant"
+        }
     }
 }
 
