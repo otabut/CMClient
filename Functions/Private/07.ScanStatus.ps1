@@ -17,7 +17,7 @@ function Check-ScanStatus {
         if ($ErrorMessage) {
             $ErrorMessage = $ErrorMessage.split('[').split(']')[2]
             $ErrorCode = $ErrorMessage.split('=')[1].split('.')[0].trim()
-            $ErrorDescription = ($Configuration.ErroCodes | where-object {$_.code -eq $ErrorCode}).Description | Select-Object -first 1
+            $ErrorDescription = ($Configuration.ErrorCodes | where-object {$_.code -eq $ErrorCode}).Description | Select-Object -first 1
             $ErrorMessage = $ErrorMessage + " - " + $ErrorDescription
             if (-not $Silent) { Write-Host "$(get-date -Format s) | [WARNING] $ErrorMessage" -ForegroundColor Yellow }
             return "NotCompliant"

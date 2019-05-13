@@ -35,7 +35,9 @@ function Check-AgentConfiguration {
 
     #Get SCCM cache size
     if (-not $Silent) { Write-Host "$(get-date -Format s) | Cache max size : $("{0:N0} MB" -f (New-Object -ComObject UIResource.UIResourceMgr).GetCacheInfo().TotalSize)" }
-    if (-not $Silent) { Write-Host "$(get-date -Format s) | Cache current size : $("{0:N0} MB" -f ((Get-ChildItem $env:windir\ccmcache -Recurse | Where-Object { ! $_.PSIsContainer } | Measure-Object -Property Length -Sum -ErrorAction Stop).Sum / 1MB))" }
+    if (Test-Path -Path $env:windir\ccmcache) {
+        if (-not $Silent) { Write-Host "$(get-date -Format s) | Cache current size : $("{0:N0} MB" -f ((Get-ChildItem $env:windir\ccmcache -Recurse | Where-Object { ! $_.PSIsContainer } | Measure-Object -Property Length -Sum -ErrorAction Stop).Sum / 1MB))" }
+    }
 
     Return $Status
 }

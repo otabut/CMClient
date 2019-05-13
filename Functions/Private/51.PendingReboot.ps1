@@ -49,10 +49,10 @@ function Check-PendingReboot {
         }
 
         ## Creating Custom PSObject
-        $result = [Ordered]@{
+        $result = @{
             Computer      = $WMI_OS.CSName
             RebootPending = ($CompPendRen -or $CBSRebootPend -or $WUAURebootReq -or $SCCM)  ### -or $PendFileRename
-            Details       = [Ordered]@{
+            Details       = @{
                 "Component-Based Servicing" = $CBSRebootPend
                 "Windows Update"            = $WUAURebootReq
                 "CCM Client SDK"            = $SCCM

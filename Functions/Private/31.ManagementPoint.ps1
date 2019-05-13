@@ -19,5 +19,16 @@ function Check-ManagementPoint {
 }
 
 function Repair-ManagementPoint {
-    Write-Host "$(get-date -Format s) | [WARNING] Auto-remediation is not implemented yet" -ForegroundColor Yellow
+    Write-Host "$(get-date -Format s) | [WARNING] Starting auto-remediation..." -ForegroundColor Yellow
+    Write-Host "$(get-date -Format s) | Trying to restart CCMEXEC service..."
+    Restart-Service CcmExec
+    Write-Host "$(get-date -Format s) | Waiting for 90 seconds..."
+    Start-Sleep -Seconds 90
+
+    if ((Check-ManagementPoint -silent) -eq 'Compliant') {
+        Write-Host "$(get-date -Format s) | [WARNING] Auto-remediation has been performed successfully" -ForegroundColor Yellow
+    }
+    else {
+        Write-Host "$(get-date -Format s) | [ERROR] Auto-remediation failed" -ForegroundColor Red
+    }
 }

@@ -6,13 +6,19 @@ function Check-BITSJobs {
     if (-not $Silent) { Write-Host "$(get-date -Format s) | Check BITS jobs" -ForegroundColor Cyan }
     
     #Check for BITS jobs errors
-    if (Get-BitsTransfer -AllUsers -ErrorAction SilentlyContinue | Where-Object { $_.JobState -like "*Error*" }) {
-        if (-not $Silent) { Write-Host "$(get-date -Format s) | [WARNING] errors detected on BITS jobs" -ForegroundColor Yellow }
-        return "NotCompliant"
+    Try {
+        if (Get-BitsTransfer -AllUsers -ErrorAction SilentlyContinue | Where-Object { $_.JobState -like "*Error*" }) {
+            if (-not $Silent) { Write-Host "$(get-date -Format s) | [WARNING] errors detected on BITS jobs" -ForegroundColor Yellow }
+            return "NotCompliant"
+        }
+        else {
+            if (-not $Silent) { Write-Host "$(get-date -Format s) | no BITS jobs running" }
+            return "Compliant"
+        }
     }
-    else {
-        if (-not $Silent) { Write-Host "$(get-date -Format s) | no BITS jobs running" }
-        return "Compliant"
+    Catch {
+        if (-not $Silent) { Write-Host "$(get-date -Format s) | [WARNING] unable to retrieve BITS jobs" -ForegroundColor Yellow }
+        return "Unknown"
     }
 }
 
