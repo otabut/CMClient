@@ -1,9 +1,9 @@
 
-Function Invoke-HardwareInventory {
+Function Invoke-UpdatesAssignment {
 
     <#
     .SYNOPSIS
-        Allows to trigger SCCM agent hardware inventory
+        Allows to trigger SCCM agent software updates assignment evaluation cycle
     .DESCRIPTION
     .LINK    
     .NOTES
@@ -14,13 +14,13 @@ Function Invoke-HardwareInventory {
     .PARAMETER Password
         Allow to specify an alternate password
     .EXAMPLE
-        Invoke-HardwareInventory
+        Invoke-UpdatesScan
     .EXAMPLE
-        Invoke-HardwareInventory -Server MyServer1
+        Invoke-UpdatesScan -Server MyServer1
     .EXAMPLE
-        get-content .\serverlist.txt | Invoke-HardwareInventory -Username MyUser -Password MyPassword
+        get-content .\serverlist.txt | Invoke-UpdatesScan -Username MyUser -Password MyPassword
     #>
-
+    
     Param(
         [Parameter(Mandatory=$false,ValueFromPipeline=$true)][ValidateNotNullOrEmpty()][String]$Server,
         [Parameter(Mandatory=$false)][ValidateNotNullOrEmpty()][String]$Username,
@@ -29,9 +29,9 @@ Function Invoke-HardwareInventory {
 
     process {
 
-        $_action = "{00000000-0000-0000-0000-000000000001}"   # HardwareInv
-	$_action2 = "{00000000-0000-0000-0000-000000000101}"  #Hardware Inventory Collection Cycle
+        #$_action = "{00000000-0000-0000-0000-000000000001}"  # HardwareInv
         #$_action = "{00000000-0000-0000-0000-000000000002}"  # SoftwareInv
+        $_action = "{00000000-0000-0000-0000-000000000108}"  # Software Updates Assignments Evaluation Cycle
         #$_action = "{00000000-0000-0000-0000-000000000113}"  # UpdateScan
         #$_action = "{00000000-0000-0000-0000-000000000021}"  # MachinePol
         #$_action = "{00000000-0000-0000-0000-000000000027}"  # UserPolicy
@@ -52,18 +52,14 @@ Function Invoke-HardwareInventory {
             try {
                 if ($Credentials) {
                     Invoke-WmiMethod -ComputerName $item -Namespace root\CCM -Class SMS_Client -Name TriggerSchedule -ArgumentList "$_action" -Credential $Credentials | out-null
-                    Start-Sleep -Seconds 10
-                    Invoke-WmiMethod -ComputerName $item -Namespace root\CCM -Class SMS_Client -Name TriggerSchedule -ArgumentList "$_action2" -Credential $Credentials | out-null
                 }
                 else {
                     Invoke-WmiMethod -ComputerName $item -Namespace root\CCM -Class SMS_Client -Name TriggerSchedule -ArgumentList "$_action" | out-null
-                    Start-Sleep -Seconds 10
-                    Invoke-WmiMethod -ComputerName $item -Namespace root\CCM -Class SMS_Client -Name TriggerSchedule -ArgumentList "$_action2" | out-null
                 }
-                Write-Host "$(get-date -Format s) | Hardware inventory successfully triggered for $item"
+                Write-Host "$(get-date -Format s) | Software updates scan successfully triggered for $item"
             }
             catch {
-                Write-Host "$(get-date -Format s) | [WARNING] Unable to trigger Hardware inventory for $item" -ForegroundColor Yellow
+                Write-Host "$(get-date -Format s) | [WARNING] Unable to trigger Software updates scan for $item" -ForegroundColor Yellow
             }
         }
     }    

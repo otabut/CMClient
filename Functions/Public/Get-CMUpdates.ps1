@@ -12,6 +12,8 @@ Function Get-CMUpdates {
         Allow to specify an alternate user account
     .PARAMETER Password
         Allow to specify an alternate password
+    .PARAMETER ArticleID
+        Allow to specify a comma separated list of KB to install
     .EXAMPLE
         Get-CMUpdates
     .EXAMPLE
@@ -23,7 +25,8 @@ Function Get-CMUpdates {
     Param(
         [Parameter(Mandatory=$false,ValueFromPipeline=$true)][ValidateNotNullOrEmpty()][String]$Server,
         [Parameter(Mandatory=$false)][ValidateNotNullOrEmpty()][String]$Username,
-        [Parameter(Mandatory=$false)][ValidateNotNullOrEmpty()][String]$Password
+        [Parameter(Mandatory=$false)][ValidateNotNullOrEmpty()][String]$Password,
+        [Parameter(Mandatory=$false)][ValidateNotNullOrEmpty()][String]$ArticleID
     )
     
     process {
@@ -44,6 +47,9 @@ Function Get-CMUpdates {
                 }
                 else {
                     $TargetedUpdates = Get-WmiObject -Namespace root\CCM\ClientSDK -Class CCM_SoftwareUpdate -Filter ComplianceState=0 -ComputerName $item -ErrorAction stop
+                }
+                if ($ArticleID) {
+                    $TargetedUpdates = $TargetedUpdates | Where-Object {$ArticleID -match $_.ArticleID}
                 }
             }
             catch {
@@ -92,7 +98,7 @@ Function Get-CMUpdates {
                         22 { $Message = "waits for presentation mode off" }
                         23 { $Message = "waits for orchestration" }
                     }
-                    Write-Host "$(get-date -Format s) | KB$($kb.ArticleID) $Message"
+                    Write-Host "$(get-date -Format s) | KB$($kb.ArticleID) $Message - $($kb.ErrorCode)"
                 }
                 $PendingUpdates = @($TargetedUpdates | Where-Object {$_.EvaluationState -ne 8}).count
                 $RebootPending = @($TargetedUpdates | Where-Object {$_.EvaluationState -eq 8}).count
